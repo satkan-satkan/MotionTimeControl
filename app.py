@@ -20,6 +20,9 @@ import cv2
 import numpy as np
 
 from control import TimelineControl, pinch_ratio
+from calibration import load_calibration, reset_calibration, save_calibration
+
+CALIBRATION_PATH = ROOT / '.local' / 'calibration.json'
 
 WIDTH, HEIGHT = 1280, 800
 BG, PANEL = (17, 15, 12), (28, 25, 21)
@@ -224,7 +227,7 @@ def render(clip, control, camera=None, status='SHOW YOUR HAND', message='',
     label(canvas, 'Pinch fingers > rewind', (968, 614), 0.43)
     label(canvas, 'No hand > hold frame', (968, 640), 0.43)
     label(canvas, 'C  calibrate close / open', (968, 685), 0.43, ACCENT)
-    label(canvas, 'X  reset calibration', (968, 711), 0.43, MUTED)
+    label(canvas, 'X  forget calibration', (968, 711), 0.43, MUTED)
     label(canvas, clip_info.source_label, (40, 663), 0.43, MUTED)
     label(canvas, f'{control.position * clip.duration:04.1f}s / {clip.duration:04.1f}s', (747, 663), 0.48)
     x, y, w, h = BAR
@@ -304,11 +307,13 @@ def main():
             print(f'Camera OK: {frames} frames read; hand detected in {hands} frames. No images saved.')
             return
 
+        calibration_message = load_calibration(control, CALIBRATION_PATH)
         manual = args.no_camera or cap is None or not cap.isOpened()
         frozen = clean = fullscreen = False
         calibration_closed = None
         ratios = deque(maxlen=8)
-        message = 'Camera unavailable. Allow access, then press R.' if manual and not args.no_camera else ''
+        message = ('Camera unavailable. Allow access, then press R.'
+                   if manual and not args.no_camera else calibration_message)
         last_time = time.monotonic()
         last_stamp = -1
         dragging = False
@@ -395,13 +400,12 @@ def main():
                         control.calibrate(calibration_closed, statistics.median(ratios))
                         calibration_closed = None
                         manual = False
-                        message = 'Calibrated. Your hand controls time.'
+                        message = save_calibration(control, CALIBRATION_PATH)
                     except ValueError as error:
                         message = str(error)
             elif key == ord('x'):
-                control.closed, control.opened = 0.18, 1.45
                 calibration_closed = None
-                message = 'Default range restored. Pinch fingers, then press C.'
+                message = reset_calibration(control, CALIBRATION_PATH)
             elif key == ord('r'):
                 if cap is not None:
                     cap.release()

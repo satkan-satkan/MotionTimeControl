@@ -57,7 +57,7 @@ Show one hand, palm facing the camera, in good light. Pinch your thumb and index
 | --- | --- |
 | **1 / 2** or top tabs | Flower / rocket |
 | **C** | Calibrate closed, then open |
-| **X** | Reset or cancel calibration |
+| **X** | Reset calibration and delete the saved range |
 | **Space** | Freeze / resume hand control |
 | **M** | Manual / hand control |
 | Drag the timeline | Scrub manually; press M to return to hand control |
@@ -66,7 +66,11 @@ Show one hand, palm facing the camera, in good light. Pinch your thumb and index
 | **R** | Reconnect the camera |
 | **Esc / Q** | Quit and release the camera |
 
-Use the English keyboard layout for letter shortcuts. Switching clips preserves calibration, relative position, manual mode and freeze state. Calibration currently resets when the application restarts.
+Use the English keyboard layout for letter shortcuts. Switching clips preserves calibration, relative position, manual mode and freeze state.
+
+After the second successful **C**, calibration is automatically saved to `.local/calibration.json` and loaded on the next launch. It contains only a format version and two numeric gesture limits. The entire `.local/` directory is ignored by Git. Starting a new calibration does not overwrite the saved range until both steps succeed. **X** restores defaults and deletes the saved calibration. Recalibrate if your hand position or camera angle changes substantially.
+
+If saved settings are invalid or unreadable, the app uses defaults and displays a message. If saving fails, the new calibration still works for the current session. If deletion fails, the app warns that the previous saved range remains on disk.
 
 ```sh
 python app.py --clip rocket
@@ -102,17 +106,17 @@ Tests generate their own fixtures and do not use a webcam. `--check` checks both
 
 - No telemetry, camera recording, or network calls in the application runtime.
 - Setup contacts PyPI and Google's model storage. GitHub Actions runs only on repository contents.
-- Videos, model binaries, screenshots, previews, logs, virtual environments, `.env` files and local editor settings are ignored by Git.
+- Videos, model binaries, screenshots, previews, logs, virtual environments, `.env` files, local editor settings and `.local/` calibration settings are ignored by Git.
 - Generated demos contain no personal images and can be recreated from source code.
 - Before sharing diagnostics, inspect them for local filesystem paths or other personal details.
 
 ## Project layout
 
-`app.py` handles the window, clips and detector. `control.py` implements gesture mapping and smoothing. `demo_assets.py` creates demo animations. `setup_assets.py` verifies the model download. `tests/` exercises gesture behavior and setup/clip switching.
+`app.py` handles the window, clips and detector. `control.py` implements gesture mapping and smoothing. `calibration.py` saves, loads and clears local calibration. `demo_assets.py` creates demo animations. `setup_assets.py` verifies the model download. `tests/` exercises gesture behavior, calibration persistence and setup/clip switching.
 
 ## Possible next steps
 
-- Save calibration between launches and offer guided on-screen calibration.
+- Offer guided on-screen calibration.
 - Add a clip picker and trim controls, so changing a video needs no terminal.
 - Package a macOS app with a clear camera permission flow.
 - Add adjustable smoothing and a confidence indicator for difficult lighting.

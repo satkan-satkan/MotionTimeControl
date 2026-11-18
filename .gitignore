@@ -2,6 +2,7 @@
 venv/
 .tools/
 .cache/
+.local/
 __pycache__/
 *.py[cod]
 *.part
