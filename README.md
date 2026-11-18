@@ -29,6 +29,13 @@ python app.py
 
 On Windows, use `py -3.12 -m venv .venv`, then `.venv\Scripts\Activate.ps1` in PowerShell instead of the environment commands above. If activation is restricted, call `.venv\Scripts\python.exe` directly.
 
+On Ubuntu/Debian, install the native graphics libraries before running the model (MediaPipe needs them even with CPU inference):
+
+```sh
+sudo apt-get update
+sudo apt-get install -y libegl1 libgl1
+```
+
 On macOS, `./setup.command` and then `./run.command` provide the same setup/launch flow. Allow camera access for the launching application (usually Terminal). After granting permission, press **R** or restart the app.
 
 Setup downloads Google's official Hand Landmarker model (about 8 MB) and verifies its SHA-256. Subsequent runs work offline. Existing local videos are not overwritten.
