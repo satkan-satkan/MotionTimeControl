@@ -33,7 +33,7 @@ On Ubuntu/Debian, install the native graphics libraries before running the model
 
 ```sh
 sudo apt-get update
-sudo apt-get install -y libegl1 libgl1
+sudo apt-get install -y libegl1 libgl1 libgles2
 ```
 
 On macOS, `./setup.command` and then `./run.command` provide the same setup/launch flow. Allow camera access for the launching application (usually Terminal). After granting permission, press **R** or restart the app.
